@@ -30,6 +30,31 @@
   </a>
 </p>
 
+
+## Changes for this repository
+
+Now you can remove, replace kernel modules:
+
+```javascript
+import EditorJS from '@editorjs/editorjs'
+import SuprePast from './SuprePast'
+
+const editor = new EditorJS({
+  replaceModules: {
+   'Past': SuprePast, // replace Core module,
+   'DragNDrop': false, // disable Core module
+  }
+})
+```
+
+The core module **Past** has been changed. The config parameter **pastInOneDefaultBlock** will combine all default blocks into one when inserted:
+
+```javascript
+const editor = new EditorJS({
+  pastInOneDefaultBlock: true,
+})
+```
+
 ## About
 
 Editor.js is an open-source text editor offering a variety of features to help users create and format content efficiently. It has a modern, block-style interface that allows users to easily add and arrange different types of content, such as text, images, lists, quotes, etc. Each Block is provided via a separate plugin making Editor.js extremely flexible.
@@ -95,7 +120,7 @@ const editor = new EditorJS({
    // ... your tools
   }
 })
-````
+```
 
 See details about [Installation](https://editorjs.io/getting-started/) and [Configuration](https://editorjs.io/configuration/) at the documentation.
 
