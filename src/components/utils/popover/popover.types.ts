@@ -1,4 +1,4 @@
-import { PopoverItem as PopoverItemParams } from '../../../../types';
+import { PopoverItemParams } from '../../../../types';
 
 /**
  * Params required to render popover
@@ -14,16 +14,6 @@ export interface PopoverParams {
    * Depending on its size popover position will be calculated
    */
   scopeElement?: HTMLElement;
-
-  /**
-   * Arbitrary html element to be inserted before items list
-   */
-  customContent?: HTMLElement;
-
-  /**
-   * List of html elements inside custom content area that should be available for keyboard navigation
-   */
-  customContentFlippableItems?: HTMLElement[];
 
   /**
    * True if popover should contain search field
@@ -92,9 +82,6 @@ export interface PopoverNodes {
 
   /** Popover items wrapper */
   items: HTMLElement;
-
-  /** Custom html content area */
-  customContent: HTMLElement | undefined;
 }
 
 /**

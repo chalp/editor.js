@@ -7,10 +7,13 @@ import { I18nInternalNS } from '../../i18n/namespace-internal';
 import Flipper from '../../flipper';
 import { TunesMenuConfigItem } from '../../../../types/tools';
 import { resolveAliases } from '../../utils/resolve-aliases';
-import { type Popover, PopoverDesktop, PopoverMobile } from '../../utils/popover';
+import { type Popover, PopoverDesktop, PopoverMobile, PopoverItemParams, PopoverItemDefaultParams, PopoverItemType } from '../../utils/popover';
 import { PopoverEvent } from '../../utils/popover/popover.types';
 import { isMobileScreen } from '../../utils';
 import { EditorMobileLayoutToggled } from '../../events';
+import * as _ from '../../utils';
+import { IconReplace } from '@codexteam/icons';
+import { isSameBlockData } from '../../utils/blocks';
 
 /**
  * HTML Elements that used for BlockSettings
@@ -105,7 +108,7 @@ export default class BlockSettings extends Module<BlockSettingsNodes> {
    *
    * @param targetBlock - near which Block we should open BlockSettings
    */
-  public open(targetBlock: Block = this.Editor.BlockManager.currentBlock): void {
+  public async open(targetBlock: Block = this.Editor.BlockManager.currentBlock): Promise<void> {
     this.opened = true;
 
     /**
@@ -120,10 +123,8 @@ export default class BlockSettings extends Module<BlockSettingsNodes> {
     this.Editor.BlockSelection.selectBlock(targetBlock);
     this.Editor.BlockSelection.clearCache();
 
-    /**
-     * Fill Tool's settings
-     */
-    const [tunesItems, customHtmlTunesContainer] = targetBlock.getTunes();
+    /** Get tool's settings data */
+    const { toolTunes, commonTunes } = targetBlock.getTunes();
 
     /** Tell to subscribers that block settings is opened */
     this.eventsDispatcher.emit(this.events.opened);
@@ -132,9 +133,7 @@ export default class BlockSettings extends Module<BlockSettingsNodes> {
 
     this.popover = new PopoverClass({
       searchable: true,
-      items: tunesItems.map(tune => this.resolveTuneAliases(tune)),
-      customContent: customHtmlTunesContainer,
-      customContentFlippableItems: this.getControls(customHtmlTunesContainer),
+      items: await this.getTunesItems(targetBlock, commonTunes, toolTunes),
       scopeElement: this.Editor.API.methods.ui.nodes.redactor,
       messages: {
         nothingFound: I18n.ui(I18nInternalNS.ui.popover, 'Nothing found'),
@@ -198,6 +197,115 @@ export default class BlockSettings extends Module<BlockSettingsNodes> {
   };
 
   /**
+   * Returns list of items to be displayed in block tunes menu.
+   * Merges tool specific tunes, conversion menu and common tunes in one list in predefined order
+   *
+   * @param currentBlock –  block we are about to open block tunes for
+   * @param commonTunes – common tunes
+   * @param toolTunes - tool specific tunes
+   */
+  private async getTunesItems(currentBlock: Block, commonTunes: TunesMenuConfigItem[], toolTunes?: TunesMenuConfigItem[]): Promise<PopoverItemParams[]> {
+    const items = [] as TunesMenuConfigItem[];
+
+    if (toolTunes !== undefined && toolTunes.length > 0) {
+      items.push(...toolTunes);
+      items.push({
+        type: PopoverItemType.Separator,
+      });
+    }
+
+    const convertToItems = await this.getConvertToItems(currentBlock);
+
+    if (convertToItems.length > 0) {
+      items.push({
+        icon: IconReplace,
+        title: I18n.ui(I18nInternalNS.ui.popover, 'Convert to'),
+        children: {
+          items: convertToItems,
+        },
+      });
+      items.push({
+        type: PopoverItemType.Separator,
+      });
+    }
+
+    items.push(...commonTunes);
+
+    return items.map(tune => this.resolveTuneAliases(tune));
+  }
+
+  /**
+   * Returns list of all available conversion menu items
+   *
+   * @param currentBlock - block we are about to open block tunes for
+   */
+  private async getConvertToItems(currentBlock: Block): Promise<PopoverItemDefaultParams[]> {
+    const conversionEntries = Array.from(this.Editor.Tools.blockTools.entries());
+
+    const resultItems: PopoverItemDefaultParams[] = [];
+
+    const blockData = await currentBlock.data;
+
+    conversionEntries.forEach(([toolName, tool]) => {
+      const conversionConfig = tool.conversionConfig;
+
+      /**
+       * Skip tools without «import» rule specified
+       */
+      if (!conversionConfig || !conversionConfig.import) {
+        return;
+      }
+
+      tool.toolbox?.forEach((toolboxItem) => {
+        /**
+         * Skip tools that don't pass 'toolbox' property
+         */
+        if (_.isEmpty(toolboxItem) || !toolboxItem.icon) {
+          return;
+        }
+
+        let shouldSkip = false;
+
+        if (toolboxItem.data !== undefined) {
+          /**
+           * When a tool has several toolbox entries, we need to make sure we do not add
+           * toolbox item with the same data to the resulting array. This helps exclude duplicates
+           */
+          const hasSameData = isSameBlockData(toolboxItem.data, blockData);
+
+          shouldSkip = hasSameData;
+        } else {
+          shouldSkip = toolName === currentBlock.name;
+        }
+
+
+        if (shouldSkip) {
+          return;
+        }
+
+        resultItems.push({
+          icon: toolboxItem.icon,
+          title: toolboxItem.title,
+          name: toolName,
+          onActivate: async () => {
+            const { BlockManager, BlockSelection, Caret } = this.Editor;
+
+            const newBlock = await BlockManager.convert(this.Editor.BlockManager.currentBlock, toolName, toolboxItem.data);
+
+            BlockSelection.clearSelection();
+
+            this.close();
+
+            Caret.setToBlock(newBlock, Caret.positions.END);
+          },
+        });
+      });
+    });
+
+    return resultItems;
+  }
+
+  /**
    * Handles popover close event
    */
   private onPopoverClose = (): void => {
@@ -205,26 +313,14 @@ export default class BlockSettings extends Module<BlockSettingsNodes> {
   };
 
   /**
-   * Returns list of buttons and inputs inside specified container
-   *
-   * @param container - container to query controls inside of
-   */
-  private getControls(container: HTMLElement): HTMLElement[] {
-    const { StylesAPI } = this.Editor;
-    /** Query buttons and inputs inside tunes html */
-    const controls = container.querySelectorAll<HTMLElement>(
-      `.${StylesAPI.classes.settingsButton}, ${$.allInputsSelector}`
-    );
-
-    return Array.from(controls);
-  }
-
-  /**
    * Resolves aliases in tunes menu items
    *
    * @param item - item with resolved aliases
    */
-  private resolveTuneAliases(item: TunesMenuConfigItem): TunesMenuConfigItem {
+  private resolveTuneAliases(item: TunesMenuConfigItem): PopoverItemParams {
+    if (item.type === PopoverItemType.Separator || item.type === PopoverItemType.Html) {
+      return item;
+    }
     const result = resolveAliases(item, { label: 'title' });
 
     if (item.confirmation) {

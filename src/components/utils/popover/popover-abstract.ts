@@ -1,10 +1,12 @@
-import { PopoverItem } from './components/popover-item';
+import { PopoverItem, PopoverItemDefault, PopoverItemRenderParamsMap, PopoverItemSeparator, PopoverItemType } from './components/popover-item';
 import Dom from '../../dom';
-import { SearchInput, SearchableItem } from './components/search-input';
+import { SearchInput, SearchInputEvent, SearchableItem } from './components/search-input';
 import EventsDispatcher from '../events';
 import Listeners from '../listeners';
 import { PopoverEventMap, PopoverMessages, PopoverParams, PopoverEvent, PopoverNodes } from './popover.types';
 import { css } from './popover.const';
+import { PopoverItemParams } from './components/popover-item';
+import { PopoverItemHtml } from './components/popover-item/popover-item-html/popover-item-html';
 
 /**
  * Class responsible for rendering popover and handling its behaviour
@@ -13,7 +15,7 @@ export abstract class PopoverAbstract<Nodes extends PopoverNodes = PopoverNodes>
   /**
    * List of popover items
    */
-  protected items: PopoverItem[];
+  protected items: Array<PopoverItem>;
 
   /**
    * Listeners util instance
@@ -26,9 +28,17 @@ export abstract class PopoverAbstract<Nodes extends PopoverNodes = PopoverNodes>
   protected nodes: Nodes;
 
   /**
+   * List of default popover items that are searchable and may have confirmation state
+   */
+  protected get itemsDefault(): PopoverItemDefault[] {
+    return this.items.filter(item => item instanceof PopoverItemDefault) as PopoverItemDefault[];
+  }
+
+  /**
    * Instance of the Search Input
    */
-  private search: SearchInput | undefined;
+  protected search: SearchInput | undefined;
+
 
   /**
    * Messages that will be displayed in popover
@@ -42,11 +52,16 @@ export abstract class PopoverAbstract<Nodes extends PopoverNodes = PopoverNodes>
    * Constructs the instance
    *
    * @param params - popover construction params
+   * @param itemsRenderParams - popover item render params.
+   * The parameters that are not set by user via popover api but rather depend on technical implementation
    */
-  constructor(protected readonly params: PopoverParams) {
+  constructor(
+    protected readonly params: PopoverParams,
+    protected readonly itemsRenderParams: PopoverItemRenderParamsMap = {}
+  ) {
     super();
 
-    this.items = params.items.map(item => new PopoverItem(item));
+    this.items = this.buildItems(params.items);
 
     if (params.messages) {
       this.messages = {
@@ -88,10 +103,6 @@ export abstract class PopoverAbstract<Nodes extends PopoverNodes = PopoverNodes>
 
     this.nodes.popover.appendChild(this.nodes.popoverContainer);
 
-    if (params.customContent) {
-      this.addCustomContent(params.customContent);
-    }
-
     if (params.searchable) {
       this.addSearch();
     }
@@ -122,7 +133,7 @@ export abstract class PopoverAbstract<Nodes extends PopoverNodes = PopoverNodes>
     this.nodes.popover.classList.remove(css.popoverOpened);
     this.nodes.popover.classList.remove(css.popoverOpenTop);
 
-    this.items.forEach(item => item.reset());
+    this.itemsDefault.forEach(item => item.reset());
 
     if (this.search !== undefined) {
       this.search.clear();
@@ -139,29 +150,30 @@ export abstract class PopoverAbstract<Nodes extends PopoverNodes = PopoverNodes>
   }
 
   /**
-   * Handles input inside search field
+   * Factory method for creating popover items
    *
-   * @param query - search query text
-   * @param result - search results
+   * @param items - list of items params
    */
-  protected onSearch = (query: string, result: SearchableItem[]): void => {
-    this.items.forEach(item => {
-      const isHidden = !result.includes(item);
-
-      item.toggleHidden(isHidden);
+  protected buildItems(items: PopoverItemParams[]): Array<PopoverItem> {
+    return items.map(item => {
+      switch (item.type) {
+        case PopoverItemType.Separator:
+          return new PopoverItemSeparator();
+        case PopoverItemType.Html:
+          return new PopoverItemHtml(item, this.itemsRenderParams[PopoverItemType.Html]);
+        default:
+          return new PopoverItemDefault(item,  this.itemsRenderParams[PopoverItemType.Default]);
+      }
     });
-    this.toggleNothingFoundMessage(result.length === 0);
-    this.toggleCustomContent(query !== '');
-  };
-
+  }
 
   /**
    * Retrieves popover item that is the target of the specified event
    *
    * @param event - event to retrieve popover item from
    */
-  protected getTargetItem(event: Event): PopoverItem | undefined {
-    return this.items.find(el => {
+  protected getTargetItem(event: Event): PopoverItemDefault | undefined {
+    return this.itemsDefault.find(el => {
       const itemEl = el.getElement();
 
       if (itemEl === null) {
@@ -173,31 +185,47 @@ export abstract class PopoverAbstract<Nodes extends PopoverNodes = PopoverNodes>
   }
 
   /**
+   * Handles input inside search field
+   *
+   * @param data - search input event data
+   * @param data.query - search query text
+   * @param data.result - search results
+   */
+  private onSearch = (data: { query: string, items: SearchableItem[] }): void => {
+    const isEmptyQuery = data.query === '';
+    const isNothingFound = data.items.length === 0;
+
+    this.items
+      .forEach((item) => {
+        let isHidden = false;
+
+        if (item instanceof PopoverItemDefault) {
+          isHidden = !data.items.includes(item);
+        } else if (item instanceof PopoverItemSeparator || item instanceof PopoverItemHtml) {
+          /** Should hide separators if nothing found message displayed or if there is some search query applied */
+          isHidden = isNothingFound || !isEmptyQuery;
+        }
+        item.toggleHidden(isHidden);
+      });
+    this.toggleNothingFoundMessage(isNothingFound);
+  };
+
+  /**
    * Adds search to the popover
    */
   private addSearch(): void {
     this.search = new SearchInput({
-      items: this.items,
+      items: this.itemsDefault,
       placeholder: this.messages.search,
-      onSearch: this.onSearch,
     });
+
+    this.search.on(SearchInputEvent.Search, this.onSearch);
 
     const searchElement = this.search.getElement();
 
     searchElement.classList.add(css.search);
 
     this.nodes.popoverContainer.insertBefore(searchElement, this.nodes.popoverContainer.firstChild);
-  }
-
-  /**
-   * Adds custom html content to the popover
-   *
-   * @param content - html content to append
-   */
-  private addCustomContent(content: HTMLElement): void {
-    this.nodes.customContent = content;
-    this.nodes.customContent.classList.add(css.customContent);
-    this.nodes.popoverContainer.insertBefore(content, this.nodes.popoverContainer.firstChild);
   }
 
   /**
@@ -223,7 +251,7 @@ export abstract class PopoverAbstract<Nodes extends PopoverNodes = PopoverNodes>
     }
 
     /** Cleanup other items state */
-    this.items.filter(x => x !== item).forEach(x => x.reset());
+    this.itemsDefault.filter(x => x !== item).forEach(x => x.reset());
 
     item.handleClick();
 
@@ -244,15 +272,6 @@ export abstract class PopoverAbstract<Nodes extends PopoverNodes = PopoverNodes>
   }
 
   /**
-   * Toggles custom content visibility
-   *
-   * @param isDisplayed - true if custom content should be displayed
-   */
-  private toggleCustomContent(isDisplayed: boolean): void {
-    this.nodes.customContent?.classList.toggle(css.customContentHidden, isDisplayed);
-  }
-
-  /**
    * - Toggles item active state, if clicked popover item has property 'toggle' set to true.
    *
    * - Performs radiobutton-like behavior if the item has property 'toggle' set to string key.
@@ -260,13 +279,13 @@ export abstract class PopoverAbstract<Nodes extends PopoverNodes = PopoverNodes>
    *
    * @param clickedItem - popover item that was clicked
    */
-  private toggleItemActivenessIfNeeded(clickedItem: PopoverItem): void {
+  private toggleItemActivenessIfNeeded(clickedItem: PopoverItemDefault): void {
     if (clickedItem.toggle === true) {
       clickedItem.toggleActive();
     }
 
     if (typeof clickedItem.toggle === 'string') {
-      const itemsInToggleGroup = this.items.filter(item => item.toggle === clickedItem.toggle);
+      const itemsInToggleGroup = this.itemsDefault.filter(item => item.toggle === clickedItem.toggle);
 
       /** If there's only one item in toggle group, toggle it */
       if (itemsInToggleGroup.length === 1) {
@@ -287,5 +306,5 @@ export abstract class PopoverAbstract<Nodes extends PopoverNodes = PopoverNodes>
    *
    * @param item – item to show nested popover for
    */
-  protected abstract showNestedItems(item: PopoverItem): void;
+  protected abstract showNestedItems(item: PopoverItemDefault): void;
 }
