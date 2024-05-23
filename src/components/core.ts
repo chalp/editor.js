@@ -288,7 +288,22 @@ export default class Core {
    * Make modules instances and save it to the @property this.moduleInstances
    */
   private constructModules(): void {
-    Object.entries(Modules).forEach(([key, module]) => {
+    const {
+      replaceModules = {}
+    } = this.configuration;
+    
+    const finalModules = Object.entries({
+      ...Modules,
+      ...replaceModules,
+    }).reduce((result, [key, module]) => {
+      if (!!module) {
+        result[key] = module;
+      }
+
+      return result;
+    }, {}) as { [key: string]: new (...args : any[]) => any };
+
+    Object.entries(finalModules).forEach(([key, module]) => {
       try {
         this.moduleInstances[key] = new module({
           config: this.configuration,

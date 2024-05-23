@@ -578,6 +578,7 @@ export default class Paste extends Module {
    */
   private processHTML(innerHTML: string): PasteData[] {
     const { Tools } = this.Editor;
+    const { pastInOneDefaultBlock, defaultBlock } = this.config;
 
     /**
      * @todo Research, do we really need to always wrap innerHTML to a div:
@@ -596,7 +597,7 @@ export default class Paste extends Module {
 
     const nodes = this.getNodes(wrapper);
 
-    return nodes
+    const dataToInsert = nodes
       .map((node) => {
         let content, tool = Tools.defaultTool, isBlock = false;
 
@@ -698,6 +699,28 @@ export default class Paste extends Module {
 
         return !isEmpty || isSingleTag;
       });
+
+    if (!pastInOneDefaultBlock) {
+      return dataToInsert;
+    }
+
+    return dataToInsert.reduce((result: PasteData[], data: PasteData) => {
+      const isEmpty = result.length === 0;
+      const currentIsDefaultBlock = data.tool === defaultBlock;
+      const lastIsDefaultBlock = !isEmpty && (result[result.length - 1].tool === defaultBlock);
+
+      if (currentIsDefaultBlock && lastIsDefaultBlock) {
+        const prevData = result.pop();
+
+        prevData.content.innerHTML = `${prevData.content.innerHTML}<br><br>${data.content.innerHTML}`;
+        result.push(prevData);
+
+        return result;
+      }
+
+      result.push(data);
+      return result;
+    }, []);
   }
 
   /**
@@ -707,7 +730,7 @@ export default class Paste extends Module {
    * @returns {PasteData[]}
    */
   private processPlain(plain: string): PasteData[] {
-    const { defaultBlock } = this.config as { defaultBlock: string };
+    const { defaultBlock, pastInOneDefaultBlock } = this.config;
 
     if (!plain) {
       return [];
@@ -715,8 +738,11 @@ export default class Paste extends Module {
 
     const tool = defaultBlock;
 
-    return plain
-      .split(/\r?\n/)
+    const splitText = pastInOneDefaultBlock
+      ? [ plain ]
+      : plain.split(/\r?\n/);
+
+    return splitText
       .filter((text) => text.trim())
       .map((text) => {
         const content = $.make('div');

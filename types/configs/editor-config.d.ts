@@ -1,10 +1,21 @@
-import {ToolConstructable, ToolSettings} from '../tools';
+import {ToolConfig, ToolConstructable, ToolSettings} from '../tools';
 import {API, LogLevels, OutputData} from '../index';
 import {SanitizerConfig} from './sanitizer-config';
 import {I18nConfig} from './i18n-config';
 import { BlockMutationEvent } from '../events/block';
 
 export interface EditorConfig {
+  
+  /**
+   * Merge default blocks during insertion
+   */
+  pastInOneDefaultBlock?: boolean,
+
+  /**
+   * Replace or disable Core Modules
+   */
+  replaceModules?: { [key: string]: (new (...args : any[]) => any ) | false };
+
   /**
    * Element where Editor will be append
    * @deprecated property will be removed in the next major release, use holder instead
