@@ -1,4 +1,4 @@
-import { PopoverHeaderParams } from './popover-header.types';
+import { PopoverHeaderParams } from '../../../../../../types/popover';
 import Dom from '../../../../dom';
 import { css } from './popover-header.const';
 import { IconChevronLeft } from '@codexteam/icons';

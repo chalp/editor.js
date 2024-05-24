@@ -12,7 +12,16 @@ import Core from './components/core';
 import * as _ from './components/utils';
 import { destroy as destroyTooltip } from './components/utils/tooltip';
 
+import Module from './components/__module';
+
+import * as Sanitizer from './components/utils/sanitizer';
+
 declare const VERSION: string;
+
+export {
+  Module,
+  Sanitizer
+};
 
 /**
  * Editor.js

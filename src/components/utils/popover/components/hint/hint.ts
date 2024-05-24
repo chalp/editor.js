@@ -1,6 +1,6 @@
 import Dom from '../../../../dom';
 import { css } from './hint.const';
-import { HintParams } from './hint.types';
+import { HintParams } from '../../../../../../types/popover';
 
 import './hint.css';
 

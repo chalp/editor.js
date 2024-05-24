@@ -1,5 +1,5 @@
 import { PopoverItem } from '../popover-item';
-import { PopoverItemHtmlParams, PopoverItemRenderParamsMap, PopoverItemType } from '../popover-item.types';
+import { PopoverItemHtmlParams, PopoverItemRenderParamsMap, PopoverItemType } from '../../../../../../../types/popover';
 import { css } from './popover-item-html.const';
 import Dom from '../../../../../dom';
 

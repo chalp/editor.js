@@ -44,6 +44,11 @@ export interface BlockTool extends BaseTool {
   merge?(blockData: BlockToolData): void;
 
   /**
+   * Called ater adding a new Block
+   */
+  appendCallback?(): void
+
+  /**
    * On paste callback. Fired when pasted content can be substituted by a Tool
    * @param {PasteEvent} event
    */
@@ -91,7 +96,16 @@ export interface BlockToolConstructorOptions<D extends object = any, C extends o
   readOnly: boolean;
 }
 
-export interface BlockToolConstructable extends BaseToolConstructable {
+export interface BlockToolConstructable<
+  D extends object = any,
+  C extends object = any,
+> extends Omit<BaseToolConstructable, 'new'> {
+  
+  /**
+   * Does not create a new block when pressing Enter
+   */
+  enableLineBreaks?: boolean;
+  
   /**
    * Tool's Toolbox settings
    */
@@ -119,5 +133,5 @@ export interface BlockToolConstructable extends BaseToolConstructable {
    *
    * @return {BlockTool}
    */
-  new(config: BlockToolConstructorOptions): BlockTool;
+  new(config: BlockToolConstructorOptions<D, C>): BlockTool;
 }

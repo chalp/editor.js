@@ -3,7 +3,7 @@ import { PopoverItemSeparator } from './popover-item-separator/popover-item-sepa
 import { PopoverItem } from './popover-item';
 
 export * from './popover-item-default/popover-item-default.const';
-export * from './popover-item.types';
+export * from '../../../../../../types/popover/popover-item';
 
 export {
   PopoverItemDefault,

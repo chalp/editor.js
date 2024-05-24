@@ -1,7 +1,7 @@
 import Flipper from '../../flipper';
 import { PopoverAbstract } from './popover-abstract';
 import { PopoverItem, css as popoverItemCls } from './components/popover-item';
-import { PopoverParams } from './popover.types';
+import { PopoverParams } from '../../../../types/popover';
 import { keyCodes } from '../../utils';
 import { css } from './popover.const';
 import { SearchInputEvent, SearchableItem } from './components/search-input';

@@ -1,9 +1,9 @@
 import { PopoverItem, PopoverItemDefault, PopoverItemRenderParamsMap, PopoverItemSeparator, PopoverItemType } from './components/popover-item';
 import Dom from '../../dom';
-import { SearchInput, SearchInputEvent, SearchableItem } from './components/search-input';
+import { SearchableItem, SearchInput, SearchInputEvent } from './components/search-input';
 import EventsDispatcher from '../events';
 import Listeners from '../listeners';
-import { PopoverEventMap, PopoverMessages, PopoverParams, PopoverEvent, PopoverNodes } from './popover.types';
+import { PopoverEvent, PopoverEventMap, PopoverMessages, PopoverNodes, PopoverParams } from '../../../../types/popover';
 import { css } from './popover.const';
 import { PopoverItemParams } from './components/popover-item';
 import { PopoverItemHtml } from './components/popover-item/popover-item-html/popover-item-html';
@@ -15,7 +15,7 @@ export abstract class PopoverAbstract<Nodes extends PopoverNodes = PopoverNodes>
   /**
    * List of popover items
    */
-  protected items: Array<PopoverItem>;
+  protected items: PopoverItem[];
 
   /**
    * Listeners util instance

@@ -291,7 +291,7 @@ export default class Core {
     const {
       replaceModules = {}
     } = this.configuration;
-    
+
     const finalModules = Object.entries({
       ...Modules,
       ...replaceModules,

@@ -1,11 +1,12 @@
 import Dom from '../../../../../dom';
-import { IconDotCircle, IconChevronRight } from '@codexteam/icons';
+import { IconChevronRight, IconDotCircle } from '@codexteam/icons';
 import {
   PopoverItemDefaultParams as PopoverItemDefaultParams,
   PopoverItemParams as PopoverItemParams,
   PopoverItemRenderParamsMap,
   PopoverItemType
-} from '../popover-item.types';
+} from '../../../../../../../types/popover';
+
 import { PopoverItem } from '../popover-item';
 import { css } from './popover-item-default.const';
 

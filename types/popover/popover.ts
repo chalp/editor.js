@@ -1,4 +1,4 @@
-import { PopoverItemParams } from '../../../../types';
+import { PopoverItemParams } from './popover-item';
 
 /**
  * Params required to render popover

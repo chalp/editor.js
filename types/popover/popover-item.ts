@@ -1,4 +1,4 @@
-import { HintParams, HintPosition } from '../hint';
+import { HintParams, HintPosition } from './hint';
 
 /**
  * Popover item types

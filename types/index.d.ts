@@ -5,17 +5,18 @@
  */
 
 import {
-  Dictionary,
-  DictValue,
   EditorConfig,
-  I18nConfig,
-  I18nDictionary,
 } from './configs';
+
+import Module from './module';
+
+import * as SanitizerGlobal from './utils/sanitizer';
 
 import {
   Blocks,
   Caret,
   Events,
+  I18n,
   InlineToolbar,
   Listeners,
   Notifier,
@@ -26,16 +27,15 @@ import {
   Styles,
   Toolbar,
   Tooltip,
-  I18n,
   Ui,
 } from './api';
 
 import { OutputData } from './data-formats';
 import { BlockMutationEvent, BlockMutationEventMap, BlockMutationType } from './events/block';
-import { BlockAddedMutationType, BlockAddedEvent } from './events/block/BlockAdded';
-import { BlockChangedMutationType, BlockChangedEvent } from './events/block/BlockChanged';
-import { BlockMovedMutationType, BlockMovedEvent } from './events/block/BlockMoved';
-import { BlockRemovedMutationType, BlockRemovedEvent } from './events/block/BlockRemoved';
+import { BlockAddedEvent, BlockAddedMutationType } from './events/block/BlockAdded';
+import { BlockChangedEvent, BlockChangedMutationType } from './events/block/BlockChanged';
+import { BlockMovedEvent, BlockMovedMutationType } from './events/block/BlockMoved';
+import { BlockRemovedEvent, BlockRemovedMutationType } from './events/block/BlockRemoved';
 
 /**
  * Interfaces used for development
@@ -84,7 +84,7 @@ export {
   PopoverItemDefaultParams,
   PopoverItemWithConfirmationParams,
   PopoverItemWithoutConfirmationParams
-} from '../src/components/utils/popover';
+} from './popover';
 
 export { OutputData, OutputBlockData} from './data-formats/output-data';
 export { BlockId } from './data-formats/block-id';
@@ -186,6 +186,11 @@ declare class EditorJS {
    * Destroy Editor instance and related DOM elements
    */
   public destroy(): void;
+}
+
+export {
+  Module,
+  SanitizerGlobal as Sanitizer,
 }
 
 export as namespace EditorJS;

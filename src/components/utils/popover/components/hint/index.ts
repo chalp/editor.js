@@ -1,2 +1,2 @@
 export * from './hint';
-export * from './hint.types';
+export * from '../../../../../../types/popover/hint';

@@ -1,6 +1,6 @@
 import { ToolConfig } from './tool-config';
 import { ToolConstructable, BlockToolData } from './index';
-import { PopoverItemDefaultParams, PopoverItemSeparatorParams, PopoverItemHtmlParams } from '../configs';
+import { PopoverItemDefaultParams, PopoverItemSeparatorParams, PopoverItemHtmlParams } from '../popover';
 
 /**
  * Tool may specify its toolbox configuration
