@@ -51,7 +51,7 @@
       ],
       "rules": {
         "quotes": [1, "double"],
-        "semi": [1, "never"],
+        "semi": [1, "never"]
       }
     }
   ]

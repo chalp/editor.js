@@ -338,6 +338,7 @@ export async function sequence(
       await chainData.function(chainData.data);
       await successCallback(!isUndefined(chainData.data) ? chainData.data : {});
     } catch (e) {
+      console.error(e);
       fallbackCallback(!isUndefined(chainData.data) ? chainData.data : {});
     }
   }

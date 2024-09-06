@@ -1,6 +1,6 @@
 {
-  "name": "@editorjs/editorjs",
-  "version": "2.30.5",
+  "name": "@chalp/editorjs",
+  "version": "2.30.5-fx4",
   "description": "Editor.js — open source block-style WYSIWYG editor with JSON output",
   "main": "dist/editorjs.umd.js",
   "module": "dist/editorjs.mjs",
@@ -32,11 +32,11 @@
     "test:e2e:open": "yarn build:test && cypress open",
     "devserver:start": "yarn build && node ./devserver.js"
   },
-  "author": "CodeX",
+  "author": "CodeX, chalp",
   "license": "Apache-2.0",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/codex-team/editor.js.git"
+    "url": "git+https://github.com/chalp/editor.js.git"
   },
   "devDependencies": {
     "@babel/register": "^7.21.0",
@@ -48,7 +48,7 @@
     "@editorjs/header": "^2.8.7",
     "@editorjs/paragraph": "^2.11.6",
     "@editorjs/simple-image": "^1.4.1",
-    "@types/node": "^18.15.11",
+    "@types/node": "^22.5.4",
     "chai-subset": "^1.6.0",
     "codex-notifier": "^1.1.2",
     "codex-tooltip": "^1.0.5",
@@ -59,7 +59,7 @@
     "cypress-terminal-report": "^5.3.2",
     "cypress-vite": "^1.5.0",
     "eslint": "^8.37.0",
-    "eslint-config-codex": "^1.7.1",
+    "eslint-config-codex": "^1.9.2",
     "eslint-plugin-chai-friendly": "^0.7.2",
     "eslint-plugin-cypress": "2.12.1",
     "html-janitor": "^2.0.4",
@@ -67,12 +67,12 @@
     "postcss-apply": "^0.12.0",
     "postcss-nested": "4.1.2",
     "postcss-preset-env": "^8.3.0",
-    "rollup-plugin-license": "^3.0.1",
+    "rollup-plugin-license": "^3.4.0",
     "stylelint": "^15.4.0",
     "tslint": "^6.1.1",
-    "typescript": "5.0.3",
-    "vite": "^4.2.1",
-    "vite-plugin-css-injected-by-js": "^3.1.0"
+    "typescript": "^5.5.4",
+    "vite": "^5.4.3",
+    "vite-plugin-css-injected-by-js": "^3.5.1"
   },
   "collective": {
     "type": "opencollective",

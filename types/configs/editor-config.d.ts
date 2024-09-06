@@ -3,6 +3,7 @@ import {API, LogLevels, OutputData} from '../index';
 import {SanitizerConfig} from './sanitizer-config';
 import {I18nConfig} from './i18n-config';
 import { BlockMutationEvent } from '../events/block';
+import Module from '../components/__module';
 
 export interface EditorConfig {
   /**
@@ -10,6 +11,13 @@ export interface EditorConfig {
    * @deprecated property will be removed in the next major release, use holder instead
    */
   holderId?: string | HTMLElement;
+
+  /**
+   * Replace or disable Core Modules
+   */
+  replaceModules?: {
+    [key: string]: (new (...args: any[]) => Module) | false;
+  };
 
   /**
    * Element where Editor will be appended

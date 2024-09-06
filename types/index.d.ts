@@ -5,17 +5,14 @@
  */
 
 import {
-  Dictionary,
-  DictValue,
   EditorConfig,
-  I18nConfig,
-  I18nDictionary,
 } from './configs';
 
 import {
   Blocks,
   Caret,
   Events,
+  I18n,
   InlineToolbar,
   Listeners,
   Notifier,
@@ -25,18 +22,17 @@ import {
   Selection,
   Styles,
   Toolbar,
-  Tooltip,
-  I18n,
-  Ui,
   Tools,
+  Tooltip,
+  Ui,
 } from './api';
 
 import { OutputData } from './data-formats';
 import { BlockMutationEvent, BlockMutationEventMap, BlockMutationType } from './events/block';
-import { BlockAddedMutationType, BlockAddedEvent } from './events/block/BlockAdded';
-import { BlockChangedMutationType, BlockChangedEvent } from './events/block/BlockChanged';
-import { BlockMovedMutationType, BlockMovedEvent } from './events/block/BlockMoved';
-import { BlockRemovedMutationType, BlockRemovedEvent } from './events/block/BlockRemoved';
+import { BlockAddedEvent, BlockAddedMutationType } from './events/block/BlockAdded';
+import { BlockChangedEvent, BlockChangedMutationType } from './events/block/BlockChanged';
+import { BlockMovedEvent, BlockMovedMutationType } from './events/block/BlockMoved';
+import { BlockRemovedEvent, BlockRemovedMutationType } from './events/block/BlockRemoved';
 
 /**
  * Interfaces used for development
@@ -65,8 +61,20 @@ export {
   HTMLPasteEventDetail,
   FilePasteEvent,
   FilePasteEventDetail,
+  MenuConfig,
+  MenuConfigItemDefaultParams,
+  MenuConfigItem,
+  MenuConfigItemDefaultWithConfirmationParams,
+  MenuConfigDefaultBaseParams,
 } from './tools';
+
+export { ToolType } from './tools/adapters/tool-type';
+export { InlineToolAdapter } from './tools/adapters/inline-tool-adapter';
+export { BlockToolAdapter } from './tools/adapters/block-tool-adapter';
+export { BlockTuneAdapter } from './tools/adapters/block-tune-adapter';
+
 export {BlockTune, BlockTuneConstructable} from './block-tunes';
+
 export {
   EditorConfig,
   SanitizerConfig,
@@ -81,8 +89,8 @@ export {
 } from './configs';
 
 export * from './utils/popover';
-
-export { OutputData, OutputBlockData} from './data-formats/output-data';
+export { SavedData } from './data-formats';
+export { OutputData, OutputBlockData } from './data-formats/output-data';
 export { BlockId } from './data-formats/block-id';
 export { BlockAPI } from './api'
 export {
@@ -121,6 +129,9 @@ export interface API {
   readOnly: ReadOnly;
   ui: Ui;
 }
+
+import Module from './components/__module'
+import * as SanitizerUtils from './components/utils/sanitizer';
 
 /**
  * Main Editor class
@@ -186,5 +197,10 @@ declare class EditorJS {
   public destroy(): void;
 }
 
-export as namespace EditorJS;
+export {
+  SanitizerUtils as Sanitizer,
+  EditorJS,
+  Module,
+}
+
 export default EditorJS;

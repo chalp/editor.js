@@ -58,6 +58,10 @@ export interface BlockTool extends BaseTool {
   /**
    * Lifecycle hooks
    */
+  /**
+   * Called after block created
+   */
+  appendCallback?(): void
 
   /**
    * Called after block content added to the page
@@ -91,7 +95,7 @@ export interface BlockToolConstructorOptions<D extends object = any, C extends o
   readOnly: boolean;
 }
 
-export interface BlockToolConstructable extends BaseToolConstructable {
+export interface BlockToolConstructable<D extends object = any, C extends object = any> extends Omit<BaseToolConstructable, 'new'> {
   /**
    * Tool's Toolbox settings
    */
@@ -119,5 +123,5 @@ export interface BlockToolConstructable extends BaseToolConstructable {
    *
    * @return {BlockTool}
    */
-  new(config: BlockToolConstructorOptions): BlockTool;
+  new(config: BlockToolConstructorOptions<D, C>): BlockTool;
 }

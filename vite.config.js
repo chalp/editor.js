@@ -5,7 +5,7 @@ import license from 'rollup-plugin-license';
 
 import * as pkg from './package.json';
 
-const NODE_ENV = process.argv.mode || 'development';
+const NODE_ENV = process.env.NODE_ENV || 'development';
 const VERSION = pkg.version;
 
 /**
@@ -14,13 +14,18 @@ const VERSION = pkg.version;
  */
 process.env.BROWSER = 'open';
 
+const outDir = 'dist';
+const fileNameOut = 'editorjs';
+const fileNameIn = 'codex';
+
 export default {
   build: {
     copyPublicDir: false,
+    outDir,
     lib: {
-      entry: path.resolve(__dirname, 'src', 'codex.ts'),
+      entry: path.resolve(__dirname, 'src', `${fileNameIn}.ts`),
       name: 'EditorJS',
-      fileName: 'editorjs',
+      fileName: fileNameOut,
     },
     rollupOptions: {
       plugins: [

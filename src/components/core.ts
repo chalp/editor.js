@@ -7,6 +7,7 @@ import { CriticalError } from './errors/critical';
 import EventsDispatcher from './utils/events';
 import Modules from './modules';
 import type { EditorEventMap } from './events';
+import type Module from './__module';
 
 /**
  * Editor.js core class. Bootstraps modules.
@@ -288,7 +289,22 @@ export default class Core {
    * Make modules instances and save it to the @property this.moduleInstances
    */
   private constructModules(): void {
-    Object.entries(Modules).forEach(([key, module]) => {
+    const {
+      replaceModules = {},
+    } = this.configuration;
+
+    const finalModules = Object.entries({
+      ...Modules,
+      ...replaceModules,
+    }).reduce((result, [key, module]) => {
+      if (!!module) {
+        result[key] = module;
+      }
+
+      return result;
+    }, {}) as { [key: string]: new (...args : any[]) => Module };
+
+    Object.entries(finalModules).forEach(([key, module]) => {
       try {
         this.moduleInstances[key] = new module({
           config: this.configuration,

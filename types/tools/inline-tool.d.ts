@@ -45,16 +45,16 @@ export interface InlineTool extends BaseTool<HTMLElement | MenuConfig> {
 /**
  * Describe constructor parameters
  */
-export interface InlineToolConstructorOptions {
+export interface InlineToolConstructorOptions<C extends object = any> {
   api: API;
-  config?: ToolConfig;
+  config?: ToolConfig<C>;
 }
 
-export interface InlineToolConstructable extends BaseToolConstructable {
+export interface InlineToolConstructable<C extends object = any> extends Omit<BaseToolConstructable, 'new'> {
   /**
    * Constructor
    *
    * @param {InlineToolConstructorOptions} config - constructor parameters
    */
-  new(config: InlineToolConstructorOptions): BaseTool;
+  new(config: InlineToolConstructorOptions<C>): BaseTool<HTMLElement | MenuConfig>;
 }

@@ -6,7 +6,7 @@ import { ToolFactory } from './tool-factory';
 /**
  * Interface for a collection of tools.
  */
-export interface ToolsCollection<V extends ToolFactory = ToolFactory> {
+export interface ToolsCollection<V extends ToolFactory = ToolFactory> extends Map<string, V> {
   /**
    * Returns Block Tools collection
    */
