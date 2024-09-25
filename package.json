@@ -1,6 +1,6 @@
 {
   "name": "@chalp/editorjs",
-  "version": "2.30.6-fx1",
+  "version": "2.30.6-fx2",
   "description": "Editor.js — open source block-style WYSIWYG editor with JSON output",
   "main": "dist/editorjs.umd.js",
   "module": "dist/editorjs.mjs",

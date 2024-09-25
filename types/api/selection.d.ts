@@ -2,9 +2,6 @@
  * Describes methods for work with Selections
  */
 export interface Selection {
-
-  savedSelectionRange: Range | null;
-
   /**
    * Looks ahead from selection and find passed tag with class name
    * @param {string} tagName - tag to find
@@ -24,7 +21,7 @@ export interface Selection {
    * Allows to immitate selection while focus moved away
   */
   setFakeBackground(): void;
-
+  
   /**
    * Removes fake background
    */
