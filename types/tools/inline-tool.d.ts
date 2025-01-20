@@ -57,4 +57,10 @@ export interface InlineToolConstructable<C extends object = any> extends Omit<Ba
    * @param {InlineToolConstructorOptions} config - constructor parameters
    */
   new(config: InlineToolConstructorOptions<C>): BaseTool<HTMLElement | MenuConfig>;
+
+  /**
+   * Allows inline tool to be available in read-only mode
+   * Can be used, for example, by comments tool
+   */
+  isReadOnlySupported?: boolean;
 }
