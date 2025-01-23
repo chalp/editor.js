@@ -28,6 +28,14 @@ interface Document {
   selection?: MSSelection;
 }
 
+
+export interface SelectionRect {
+  anchorNode: Node | null,
+  focusNode: Node | null,
+  anchorOffset: number,
+  focusOffset: number,
+}
+
 /**
  * Working with selection
  *
@@ -172,6 +180,28 @@ export default class SelectionUtils {
      * SelectionUtils is not out of Editor because Editor's wrapper was found
      */
     return editorZone ? editorZone.nodeType === Node.ELEMENT_NODE : false;
+  }
+
+  /**
+   *
+   * @param s1 - Selection object to check
+   * @param s2 - Selection object to check
+   */
+  public static isEqual(
+    s1?: SelectionRect | null,
+    s2?: SelectionRect | null
+  ): boolean {
+    if (!s1 || !s2) {
+      return false;
+    }
+
+    const anchorNodeEqual = s1.anchorNode === s2.anchorNode;
+    const focusNodeEqual = s1.focusNode === s2.focusNode;
+
+    const anchorOffsetEqual = s1.anchorOffset === s2.anchorOffset;
+    const focusOffsetEqual = s1.focusOffset === s2.focusOffset;
+
+    return anchorNodeEqual && focusNodeEqual && anchorOffsetEqual && focusOffsetEqual;
   }
 
   /**
