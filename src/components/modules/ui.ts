@@ -8,7 +8,6 @@ import Module from '../__module';
 import $, { toggleEmptyMark } from '../dom';
 import * as _ from '../utils';
 
-import type { SelectionRect } from '../selection';
 import Selection from '../selection';
 import Block from '../block';
 import Flipper from '../flipper';
@@ -44,14 +43,6 @@ interface UINodes {
  * @property {Element} nodes.redactor - <ce-redactor>
  */
 export default class UI extends Module<UINodes> {
-  private lastSelection: SelectionRect | null = {
-    anchorNode: null,
-    focusNode: null,
-
-    anchorOffset: 0,
-    focusOffset: 0,
-  };
-
   /**
    * Editor.js UI CSS class names
    *
@@ -131,26 +122,6 @@ export default class UI extends Module<UINodes> {
   private selectionChangeDebounced = _.debounce(() => {
     this.selectionChanged();
   }, selectionChangeDebounceTimeout);
-
-  /**
-   *
-   */
-  private handleSelectionChange =(): void => {
-    const selection = document.getSelection()!;
-
-    if (!Selection.isEqual(selection, this.lastSelection)) {
-      this.selectionChangeDebounced();
-    }
-
-    this.lastSelection = {
-      anchorNode: selection.anchorNode,
-      focusNode: selection.focusNode,
-
-      anchorOffset: selection.anchorOffset,
-      focusOffset: selection.focusOffset,
-    };
-  };
-
 
   /**
    * Making main interface
@@ -257,7 +228,7 @@ export default class UI extends Module<UINodes> {
    */
   public destroy(): void {
     this.nodes.holder.innerHTML = '';
-    this.lastSelection = null;
+
     this.unbindReadOnlyInsensitiveListeners();
   }
 
@@ -383,7 +354,7 @@ export default class UI extends Module<UINodes> {
    * Adds listeners that should work both in read-only and read-write modes
    */
   private bindReadOnlyInsensitiveListeners(): void {
-    this.listeners.on(document, 'selectionchange', this.handleSelectionChange);
+    this.listeners.on(document, 'selectionchange', this.selectionChangeDebounced);
 
     this.listeners.on(window, 'resize', this.resizeDebouncer, {
       passive: true,
@@ -404,7 +375,7 @@ export default class UI extends Module<UINodes> {
    * Removes listeners that should work both in read-only and read-write modes
    */
   private unbindReadOnlyInsensitiveListeners(): void {
-    this.listeners.off(document, 'selectionchange', this.handleSelectionChange);
+    this.listeners.off(document, 'selectionchange', this.selectionChangeDebounced);
     this.listeners.off(window, 'resize', this.resizeDebouncer);
     this.listeners.off(this.nodes.redactor, 'mousedown', this.documentTouchedListener);
     this.listeners.off(this.nodes.redactor, 'touchstart', this.documentTouchedListener);
