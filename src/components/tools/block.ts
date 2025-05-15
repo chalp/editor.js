@@ -202,7 +202,9 @@ export default class BlockToolAdapter extends BaseToolAdapter<ToolType.Block, IB
    */
   @_.cacheable
   public get baseSanitizeConfig(): SanitizerConfig {
-    const baseConfig = {};
+    const baseConfig = {
+      br: {},
+    };
 
     Array
       .from(this.inlineTools.values())
