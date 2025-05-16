@@ -137,11 +137,23 @@ export default class InlineToolbar extends Module<InlineToolbarNodes> {
    * @param {Node} node — node to check
    */
   public containsNode(node: Node): boolean {
-    if (this.nodes.wrapper === undefined) {
+    const wrapper = this.nodes.wrapper;
+
+    if (wrapper === undefined) {
       return false;
     }
 
-    return this.nodes.wrapper.contains(node);
+    let current = node;
+
+    while (current) {
+      if (current === wrapper) {
+        return true;
+      }
+
+      current = current.parentNode || (current as ShadowRoot).host; // host — если внутри Shadow DOM
+    }
+
+    return false;
   }
 
   /**
