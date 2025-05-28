@@ -527,6 +527,26 @@ export default class Dom {
   }
 
   /**
+   *
+   * @param wrapper wrapper node
+   * @param node check node
+   */
+  public static containsNode(wrapper: Node, node: Node): boolean {
+    let current = node;
+
+    // eslint-disable-next-line @typescript-eslint/strict-boolean-expressions
+    while (current) {
+      if (current === wrapper) {
+        return true;
+      }
+
+      current = current.parentNode || (current as ShadowRoot).host; // host — если внутри Shadow DOM
+    }
+
+    return false;
+  }
+
+  /**
    * Find and return all block elements in the passed parent (including subtree)
    *
    * @param {HTMLElement} parent - root element

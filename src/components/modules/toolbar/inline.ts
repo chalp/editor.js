@@ -143,17 +143,7 @@ export default class InlineToolbar extends Module<InlineToolbarNodes> {
       return false;
     }
 
-    let current = node;
-
-    while (current) {
-      if (current === wrapper) {
-        return true;
-      }
-
-      current = current.parentNode || (current as ShadowRoot).host; // host — если внутри Shadow DOM
-    }
-
-    return false;
+    return $.containsNode(wrapper, node);
   }
 
   /**

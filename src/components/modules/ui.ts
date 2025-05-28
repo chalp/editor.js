@@ -844,7 +844,16 @@ export default class UI extends Module<UINodes> {
    */
   private selectionChanged(): void {
     const { CrossBlockSelection, BlockSelection } = this.Editor;
-    const focusedElement = Selection.anchorElement;
+    let focusedElement = Selection.anchorElement;
+
+    if (!focusedElement) {
+      const activeElement = document.activeElement;
+
+      if (activeElement && this.Editor.InlineToolbar.containsNode(activeElement)) {
+        focusedElement = activeElement;
+      }
+    }
+
 
     if (CrossBlockSelection.isCrossBlockSelectionStarted) {
       // Removes all ranges when any Block is selected
